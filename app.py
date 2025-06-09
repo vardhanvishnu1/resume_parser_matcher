@@ -1,3 +1,11 @@
+
+import spacy
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    st.warning("Downloading spaCy model 'en_core_web_sm'...")
+    spacy.cli.download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 import streamlit as st
 import os
 import joblib
