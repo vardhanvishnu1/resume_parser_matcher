@@ -13,10 +13,10 @@ def load_spacy_model():
 
     if not (os.path.exists(os.path.join(spacy_data_path, model_name)) or 
             os.path.exists(os.path.join(spacy_data_path, f"{model_name}-{spacy.__version__.split('.')[0]}"))):
-        st.warning(f"SpaCy model '{model_name}' not found at {spacy_data_path}. Attempting download...")
+       
         try:
             spacy.cli.download(model_name)
-            st.success(f"SpaCy model '{model_name}' downloaded successfully!")
+            
         except Exception as e:
             st.error(f"Failed to download spaCy model: {e}")
             st.stop()
