@@ -28,10 +28,10 @@ MarkupSafe==3.0.2
 mdurl==0.1.2
 murmurhash==1.0.13
 nltk==3.9.1
-numpy
+numpy==1.25.0
 olefile==0.47
 packaging==25.0
-pandas==2.3.0
+pandas==2.2.4
 pdfminer.six==20191110
 pillow==11.2.1
 preshed==3.0.10
