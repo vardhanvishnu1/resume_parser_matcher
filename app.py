@@ -6,7 +6,7 @@ import sys
 spacy_data_path = "/tmp/spacy_data"
 os.makedirs(spacy_data_path, exist_ok=True)
 os.environ["SPACY_DATA"] = spacy_data_path
-
+st.set_page_config(page_title="Resume Parser & Job Classifier with ATS Score", layout="wide")
 @st.cache_resource
 def load_spacy_model():
     model_name = "en_core_web_sm"
@@ -47,8 +47,6 @@ except FileNotFoundError:
 except Exception as e:
     st.error(f"An unexpected error occurred while loading the model/vectorizer: {e}")
     st.stop()
-
-st.set_page_config(page_title="Resume Parser & Job Classifier with ATS Score", layout="wide")
 
 st.markdown("""
 <style>
