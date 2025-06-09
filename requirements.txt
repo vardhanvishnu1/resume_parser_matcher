@@ -77,3 +77,4 @@ wrapt==1.17.2
 xlrd==1.2.0
 XlsxWriter==3.2.3
 python-docx 
+PyMuPDF 
