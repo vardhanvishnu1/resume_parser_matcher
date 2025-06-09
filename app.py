@@ -185,7 +185,7 @@ if st.button("Process Resume & Calculate ATS Score", key="process_button"):
                     st.markdown(generate_summary_html(name, email, phone, skills, cpi, projects_summary), unsafe_allow_html=True)
                     job, conf = classify_job(text, model, vectorizer)
                     st.subheader("Predicted Job Role")
-                    st.info(f"**{job}** with confidence")
+                    st.info(f"**{job}**")
             except Exception as e:
                 st.error(f"An error occurred during resume processing: {e}")
                 st.exception(e)
