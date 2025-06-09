@@ -1,14 +1,24 @@
-
-import spacy
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    st.warning("Downloading spaCy model 'en_core_web_sm'...")
-    spacy.cli.download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
-import streamlit as st
+import streamlit as st 
 import os
 import joblib
+import spacy 
+
+
+@st.cache_resource
+def load_spacy_model():
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        st.error("SpaCy model 'en_core_web_sm' not found. Downloading...") 
+       
+        spacy.cli.download("en_core_web_sm")
+        nlp = spacy.load("en_core_web_sm")
+    return nlp
+
+nlp = load_spacy_model()
+
+
+from utils import extract_text, preprocess
 from utils import extract_text, preprocess
 from parser_functions import (
     extract_name, extract_email, extract_phone, extract_skills,
