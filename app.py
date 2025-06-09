@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="Resume Parser & Job Classifier with ATS Score", layout="wide")
 import os
 import joblib
 import spacy
@@ -6,7 +7,6 @@ import sys
 spacy_data_path = "/tmp/spacy_data"
 os.makedirs(spacy_data_path, exist_ok=True)
 os.environ["SPACY_DATA"] = spacy_data_path
-st.set_page_config(page_title="Resume Parser & Job Classifier with ATS Score", layout="wide")
 @st.cache_resource
 def load_spacy_model():
     model_name = "en_core_web_sm"
