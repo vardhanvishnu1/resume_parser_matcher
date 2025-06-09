@@ -1,8 +1,6 @@
-[general]
-enableCORS = false
-
 [server]
 port = 8501
+headless = false
 
 [client]
 toolbarMode = "minimal"
@@ -17,13 +15,9 @@ magicEnabled = false
 level = "info"
 
 [theme]
-base="light"
-primaryColor="#4F8BF9"
-backgroundColor="#FFFFFF"
-secondaryBackgroundColor="#F0F2F6"
-textColor="#31333F"
-font="sans serif"
-
-# --- Add this section for post-install commands ---
-[tool.poetry.dependencies]
-python = ">=3.9,<3.12" # Adjust this to match your Python version if needed
+base = "light"
+primaryColor = "#4F8BF9"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#31333F"
+font = "sans serif"
