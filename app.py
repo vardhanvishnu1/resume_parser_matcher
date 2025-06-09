@@ -1,18 +1,29 @@
-import streamlit as st 
+import streamlit as st
 import os
 import joblib
-import spacy 
-
+import spacy
+import sys 
+spacy_data_path = "/tmp/spacy_data"
+os.makedirs(spacy_data_path, exist_ok=True)
+os.environ["SPACY_DATA"] = spacy_data_path
 
 @st.cache_resource
 def load_spacy_model():
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except OSError:
-        st.error("SpaCy model 'en_core_web_sm' not found. Downloading...") 
-       
-        spacy.cli.download("en_core_web_sm")
-        nlp = spacy.load("en_core_web_sm")
+    model_name = "en_core_web_sm"
+
+    if not (os.path.exists(os.path.join(spacy_data_path, model_name)) or 
+            os.path.exists(os.path.join(spacy_data_path, f"{model_name}-{spacy.__version__.split('.')[0]}"))):
+        st.warning(f"SpaCy model '{model_name}' not found at {spacy_data_path}. Attempting download...")
+        try:
+            spacy.cli.download(model_name)
+            st.success(f"SpaCy model '{model_name}' downloaded successfully!")
+        except Exception as e:
+            st.error(f"Failed to download spaCy model: {e}")
+            st.stop()
+    else:
+        st.info(f"SpaCy model '{model_name}' found at {spacy_data_path}. Loading...")
+
+    nlp = spacy.load(model_name)
     return nlp
 
 nlp = load_spacy_model()
