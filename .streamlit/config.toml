@@ -27,6 +27,3 @@ font="sans serif"
 # --- Add this section for post-install commands ---
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12" # Adjust this to match your Python version if needed
-
-[build]
-command = "python -m spacy download en_core_web_sm"
