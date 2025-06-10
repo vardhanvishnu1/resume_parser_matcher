@@ -3,8 +3,23 @@ import os
 import joblib
 import spacy
 import sys
+import nltk
 
 st.set_page_config(page_title="Resume Parser & Job Classifier with ATS Score", layout="wide")
+
+nltk_data_path = "/tmp/nltk_data"
+os.makedirs(nltk_data_path, exist_ok=True)
+nltk.data.path.append(nltk_data_path)
+
+@st.cache_resource
+def download_nltk_data():
+    try:
+        nltk.download('punkt_tab', download_dir=nltk_data_path, quiet=True)
+    except Exception as e:
+        st.error(f"Failed to download NLTK 'punkt_tab' resource: {e}")
+        st.stop()
+
+download_nltk_data()
 
 spacy_data_path = "/tmp/spacy_data"
 os.makedirs(spacy_data_path, exist_ok=True)
@@ -34,6 +49,7 @@ def load_spacy_model():
         st.stop()
 
 nlp = load_spacy_model()
+
 from utils import extract_text, preprocess
 from parser_functions import (
     extract_name, extract_email, extract_phone, extract_skills,
@@ -51,143 +67,127 @@ except FileNotFoundError:
 except Exception as e:
     st.error(f"An unexpected error occurred while loading the model/vectorizer: {e}")
     st.stop()
-# --- Streamlit App Layout and Logic ---
-# Custom CSS for styling the Streamlit app
+
 st.markdown("""
 <style>
-/* 1. Global app styling for the main container */
-/* This targets the main Streamlit app wrapper */
 .stApp {
     background-color: #FFFFFF;
     color: #333333;
-    font-family: Arial, sans-serif; /* Add a default font */
+    font-family: Arial, sans-serif;
 }
 
-/* 2. Style for general headers (h1, h2, etc.) */
 h1, h2, h3, h4, h5, h6 {
-    color: #0056b3; /* Darker blue for headers */
+    color: #0056b3;
     margin-top: 1.5em;
     margin-bottom: 0.5em;
     padding-bottom: 0.2em;
-    border-bottom: 1px solid #eee; /* Subtle separator */
+    border-bottom: 1px solid #eee;
 }
 
-/* 3. Style for labels of input widgets (text areas, file uploader) */
-/* These often live inside a label tag */
 .stTextArea > label,
 .stFileUploader > label {
     font-weight: bold;
-    color: #0056b3; /* Matching header color for labels */
-    margin-bottom: 8px; /* More space below labels */
-    display: block; /* Ensure label is on its own line */
-    font-size: 1.1em; /* Slightly larger font for labels */
+    color: #0056b3;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 1.1em;
 }
 
-/* 4. Textarea specific styling */
 .stTextArea textarea {
     border: 1px solid #cccccc;
     border-radius: 8px;
-    padding: 12px; /* Increased padding */
+    padding: 12px;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    width: 100%; /* Ensure it takes full width of its container */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    width: 100%;
+    box-sizing: border-box;
 }
 .stTextArea textarea:focus {
-    border-color: #007bff; /* Highlight on focus */
-    outline: none; /* Remove default outline */
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); /* Focus glow */
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-/* 5. File Uploader specific styling */
 .stFileUploader {
     border: 2px dashed #cccccc;
     border-radius: 8px;
-    padding: 25px; /* Increased padding */
+    padding: 25px;
     text-align: center;
-    background-color: #f9f9f9; /* Light background */
+    background-color: #f9f9f9;
     cursor: pointer;
     transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 .stFileUploader:hover {
-    border-color: #007bff; /* Blue border on hover */
-    background-color: #f0f0f0; /* Slightly darker background on hover */
+    border-color: #007bff;
+    background-color: #f0f0f0;
 }
-/* Style the inner content of the file uploader */
 .stFileUploader > div {
     font-size: 1.1em;
     color: #555;
 }
 
-/* 6. Button styling */
-/* Target the actual button element within Streamlit's button wrapper */
 .stButton > button {
-    background-color: #007bff; /* Primary blue */
+    background-color: #007bff;
     color: white;
     border-radius: 8px;
-    padding: 10px 25px; /* Adjust padding */
-    font-size: 17px; /* Slightly larger font */
+    padding: 10px 25px;
+    font-size: 17px;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* More prominent shadow */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    margin-top: 20px; /* More space above button */
+    margin-top: 20px;
     font-weight: bold;
 }
 .stButton > button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: translateY(-3px); /* More noticeable lift effect */
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Enhanced shadow on hover */
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 .stButton > button:active {
-    transform: translateY(0); /* Press effect */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Reduced shadow on click */
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* 7. Alert styling (st.info, st.success, st.warning) */
-/* Streamlit's alerts are usually div elements. You can style the base alert and then specific types. */
-div[data-testid="stAlert"] { /* A more stable way to target alerts */
+div[data-testid="stAlert"] {
     border-radius: 8px;
     padding: 15px 20px;
     margin-top: 20px;
     margin-bottom: 20px;
     font-size: 1rem;
     line-height: 1.5;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Subtle shadow for alerts */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
-div[data-testid="stAlert"].info { /* For st.info */
-    background-color: #e0f2f7; /* Light blue background */
-    color: #007bff; /* Primary blue text */
-    border-left: 6px solid #007bff; /* Prominent left border */
+div[data-testid="stAlert"].info {
+    background-color: #e0f2f7;
+    color: #007bff;
+    border-left: 6px solid #007bff;
 }
-div[data-testid="stAlert"].success { /* For st.success */
-    background-color: #e6ffe6; /* Light green background */
-    color: #28a745; /* Green text */
+div[data-testid="stAlert"].success {
+    background-color: #e6ffe6;
+    color: #28a745;
     border-left: 6px solid #28a745;
 }
-div[data-testid="stAlert"].warning { /* For st.warning */
-    background-color: #fff3e0; /* Light orange background */
-    color: #ffc107; /* Orange text */
+div[data-testid="stAlert"].warning {
+    background-color: #fff3e0;
+    color: #ffc107;
     border-left: 6px solid #ffc107;
 }
-div[data-testid="stAlert"].error { /* For st.error */
-    background-color: #ffe6e6; /* Light red background */
-    color: #dc3545; /* Red text */
+div[data-testid="stAlert"].error {
+    background-color: #ffe6e6;
+    color: #dc3545;
     border-left: 6px solid #dc3545;
 }
 
-
-/* 8. Paragraphs and Strong tags (generic HTML tags) */
 p {
-    line-height: 1.7; /* Slightly more space between lines */
-    margin-bottom: 1em; /* Space below paragraphs */
+    line-height: 1.7;
+    margin-bottom: 1em;
 }
 strong {
-    color: #333333; /* Keep bold text clear */
+    color: #333333;
 }
 
-/* Specific styling for the summary box */
 .resume-summary-box {
-    background-color:#F0F2F6; /* Light grey background */
+    background-color:#F0F2F6;
     padding: 20px;
     border-radius: 10px;
     border: 1px solid #e0e0e0;
@@ -198,50 +198,49 @@ strong {
     border-bottom: 2px solid #0056b3;
     padding-bottom: 10px;
     margin-top: 0;
-    margin-bottom: 15px; /* Space below title */
+    margin-bottom: 15px;
 }
 .resume-summary-box p {
-    margin-bottom: 8px; /* Less space between lines in summary */
+    margin-bottom: 8px;
 }
 .resume-summary-box p strong {
-    min-width: 120px; /* Align content for labels */
+    min-width: 120px;
     display: inline-block;
 }
 
-/* Style for the ATS score display */
 .ats-score-display {
     color:#0056b3;
-    font-size: 2em; /* Larger font for emphasis */
+    font-size: 2em;
     margin-bottom: 20px;
-    text-align: center; /* Center the score */
+    text-align: center;
 }
 .ats-score-display span {
-    color:#28a745; /* Green for score */
+    color:#28a745;
     font-weight: bold;
-    font-size: 1.2em; /* Make the percentage bigger */
+    font-size: 1.2em;
 }
 
-/* Style for predicted job role */
 .job-role-info {
-    background-color: #e0f2f7; /* Light blue info box */
+    background-color: #e0f2f7;
     padding: 15px;
     border-left: 5px solid #007bff;
     border-radius: 8px;
     margin-top: 15px;
 }
 .job-role-info strong {
-    color: #0056b3; /* Darker blue for job role text */
+    color: #0056b3;
     font-size: 1.1em;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 st.title("Resume Parser & Job Classifier with ATS Score")
 st.markdown("Upload your resume and paste a job description to extract details, classify job role, and get an ATS match score.")
 
 st.markdown("---")
 
-col1, col2 = st.columns(2) 
+col1, col2 = st.columns(2)
 
 with col1:
     st.header("Resume Upload")
@@ -255,6 +254,7 @@ with col2:
     st.header("Job Description")
     job_description = st.text_area("Paste Job Description Here", height=300,
                                    help="Copy and paste the full job description text here for ATS matching. This helps the ATS score calculation.")
+
 def generate_summary_html(name, email, phone, skills, cpi, projects):
     summary = f"""
     <div class="resume-summary-box">
@@ -269,7 +269,6 @@ def generate_summary_html(name, email, phone, skills, cpi, projects):
     """
     return summary
 
-# Process button logic
 if st.button("Process Resume & Calculate ATS Score", key="process_button"):
     if file is None:
         st.warning("Please upload a resume file to process.")
@@ -277,7 +276,7 @@ if st.button("Process Resume & Calculate ATS Score", key="process_button"):
         st.session_state['processed_file'] = file.name
         with st.spinner("Processing..."):
             try:
-                text = extract_text(file) 
+                text = extract_text(file)
 
                 if not text:
                     st.warning("Failed to extract text from the resume. Please try a different file or format.")
@@ -304,7 +303,7 @@ if st.button("Process Resume & Calculate ATS Score", key="process_button"):
 
             except Exception as e:
                 st.error(f"An error occurred during resume processing: {e}")
-                st.exception(e) 
+                st.exception(e)
 
-st.markdown("---") 
+st.markdown("---")
 st.caption("Developed by Vardhan Bharathula")
