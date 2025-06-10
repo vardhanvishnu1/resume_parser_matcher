@@ -33,7 +33,7 @@ olefile==0.47
 packaging==24.0
 pandas==2.2.1
 pdfminer.six==20191110
-pillow==11.2.1
+pillow==10.3.0
 preshed==3.0.8
 pycryptodome==3.23.0
 pydantic==2.11.5
