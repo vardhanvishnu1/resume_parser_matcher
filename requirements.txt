@@ -8,7 +8,7 @@ certifi==2025.4.26
 chardet==3.0.4
 charset-normalizer==3.4.2
 click==8.2.1
-cloudpathlib==0.21.1
+cloudpathlib==0.16.0
 compressed-rtf==1.0.7
 confection==0.1.5
 cymem==2.0.7
