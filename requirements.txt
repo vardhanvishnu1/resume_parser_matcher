@@ -60,7 +60,7 @@ textract==1.6.5
 thinc==8.2.3
 threadpoolctl==3.6.0
 tqdm==4.67.1
-typer==0.16.0
+typer==0.9.0
 typing-inspection==0.4.1
 typing_extensions==4.14.0
 tzdata==2025.2
